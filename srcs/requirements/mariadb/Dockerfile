@@ -1,7 +1,8 @@
-FROM alpine:3.18
+# Use the latest stable version of Debian as the base image
+FROM debian:buster
 
 # Install MariaDB
-RUN apk update && apk upgrade && apk add --no-cache mariadb mariadb-client
+RUN apt-get update && apt-get upgrade -y && apt-get install -y mariadb-server
 
 # Copy our custom MariaDB configuration file into the image
 COPY conf/50-server.cnf	/etc/mysql/mariadb.conf.d/50-server.cnf

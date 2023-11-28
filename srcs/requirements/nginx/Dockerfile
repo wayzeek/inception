@@ -1,8 +1,8 @@
-# Use the latest stable version of Alpine as the base image
-FROM alpine:3.18
+# Use the latest stable version of Debian as the base image
+FROM debian:buster
 
 # Install NGINX
-RUN apk update && apk upgrade && apk add --no-cache nginx
+RUN apt-get update && apt-get upgrade -y && apt-get install -y nginx
 
 # Create a repository for SSL certificates
 
@@ -10,7 +10,7 @@ RUN mkdir -p /etc/nginx/ssl
 
 # Install OpenSSL
 
-RUN apk add --no-cache openssl
+RUN apt-get install -y openssl
 
 # Generate a self-signed SSL certificate
 
