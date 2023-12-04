@@ -1,27 +1,19 @@
-#!/bin/sh
+#!/bin/bash
 
-# Start MariaDB
-service mysql start
+# Terminate the script if an error occured
+set -e
 
-# Create database
-mysql -e "CREATE DATABASE IF NOT EXISTS '${SQL_DATABASE}';"
+mysqld_safe &
 
-# Create user
-mysql -e "CREATE USER IF NOT EXISTS '${SQL_USER}'@'localhost' IDENTIFIED BY '${SQL_PASSWORD}';"
+# Safe install of MySQL
+if [ ! -d "/var/lib/mysql/$WP_TITLE" ]
+then
+  # Generate the database and the user with privilege for WordPress
+  mysql -uroot -e "CREATE DATABASE IF NOT EXISTS $WP_TITLE;"
+  mysql -uroot -e "CREATE USER IF NOT EXISTS '$WP_USER_LOGIN'@'%' IDENTIFIED BY '$WP_USER_PASSWORD';"
+  mysql -uroot -e "GRANT ALL PRIVILEGES ON $WP_TITLE.* TO '$WP_USER_LOGIN'@'%';"
+  mysql -uroot -e "FLUSH PRIVILEGES;"
+  mysql -uroot -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '$SQL_ROOT_PASSWORD';"
+fi
 
-# Grant privileges
-mysql -e "GRANT ALL PRIVILEGES ON '${SQL_DATABASE}'.* TO '${SQL_USER}'@'%' IDENTIFIED BY '${SQL_PASSWORD}';"
-
-# Set password
-mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '${SQL_ROOT_PASSWORD}';"
-
-# Flush privileges
-mysql -e "FLUSH PRIVILEGES;"
-
-# Stop MariaDB
-mysqladmin -u root -p$SQL_ROOT_PASSWORD shutdown
-
-# Start MariaDB 
-exec mysqld_safe
-
-
+exec "$@"

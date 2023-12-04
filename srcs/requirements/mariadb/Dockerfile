@@ -4,13 +4,14 @@ FROM debian:buster
 # Install MariaDB
 RUN apt-get update && apt-get upgrade -y && apt-get install -y mariadb-server
 
-# Copy our custom MariaDB configuration file into the image
-COPY conf/50-server.cnf	/etc/mysql/mariadb.conf.d/50-server.cnf
-
 # Copy script to create database and user
+COPY tools/configure.sh configure.sh
 
-COPY tools/configure.sh /tmp/configure.sh
+# Give permission to execute the script
+RUN chmod +x configure.sh
+
+# Open port
+EXPOSE 3306
 
 # Launch script to create database and user
-
-CMD ["sh", "/tmp/configure.sh"]
+ENTRYPOINT ["./configure.sh"]

@@ -6,9 +6,11 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y wget
 
 # Install PHP & MySQL
 RUN apt-get install -y php7.3 \
-    php-fpm \
-    php-mysql \
-    mariadb-client 
+                       php-fpm \
+                       php-mysqli \
+                       mariadb-client \
+                       wget \
+                       curl
 
 # Install WordPress
 RUN wget https://fr.wordpress.org/wordpress-6.0-fr_FR.tar.gz -P /var/www
