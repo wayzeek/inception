@@ -1,19 +1,19 @@
-#!/bin/bash
+#!/bin/sh
 
-# Terminate the script if an error occured
-set -e
+sed -i 's|MYSQL_DATABASE|'${SQL_DATABASE}'|g' /tmp/init.sql
+sed -i 's|MYSQL_USER|'${SQL_USER}'|g' /tmp/init.sql
+sed -i 's|MYSQL_PASSWORD|'${SQL_PASSWORD}'|g' /tmp/init.sql
+sed -i 's|MYSQL_ROOT_PASSWORD|'${SQL_ROOT_PASSWORD}'|g' /tmp/init.sql
+sed -i 's|MYSQL_PORT|'3306'|g' /etc/mysql/my.cnf
+sed -i 's|MYSQL_ADDRESS|'0.0.0.0'|g' /etc/mysql/my.cnf
 
-mysqld_safe &
 
-# Safe install of MySQL
-if [ ! -d "/var/lib/mysql/$WP_TITLE" ]
-then
-  # Generate the database and the user with privilege for WordPress
-  mysql -uroot -e "CREATE DATABASE IF NOT EXISTS $WP_TITLE;"
-  mysql -uroot -e "CREATE USER IF NOT EXISTS '$WP_USER_LOGIN'@'%' IDENTIFIED BY '$WP_USER_PASSWORD';"
-  mysql -uroot -e "GRANT ALL PRIVILEGES ON $WP_TITLE.* TO '$WP_USER_LOGIN'@'%';"
-  mysql -uroot -e "FLUSH PRIVILEGES;"
-  mysql -uroot -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '$SQL_ROOT_PASSWORD';"
+if [ ! -d "/run/mysqld" ]; then
+	mkdir -p /run/mysqld
+	chown -R mysql:mysql /run/mysqld
 fi
+
+mysql_install_db --datadir=/var/lib/mysql
+mysqld --user=root --init-file="/tmp/init.sql"
 
 exec "$@"
